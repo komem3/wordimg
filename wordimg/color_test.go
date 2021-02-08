@@ -1,4 +1,4 @@
-package wordrandimg
+package wordimg
 
 import (
 	"image/color"
@@ -27,7 +27,7 @@ func TestColorGenerator_randColor(t *testing.T) {
 				randValue: 0,
 			},
 			want{
-				color: color.RGBA{255, 0, 0, 0},
+				color: color.RGBA{255, 0, 0, 255},
 			},
 		},
 		{
@@ -36,7 +36,7 @@ func TestColorGenerator_randColor(t *testing.T) {
 				randValue: 5,
 			},
 			want{
-				color: color.RGBA{5, 250, 250, 0},
+				color: color.RGBA{5, 250, 250, 255},
 			},
 		},
 	}

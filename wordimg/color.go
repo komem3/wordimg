@@ -1,4 +1,4 @@
-package wordrandimg
+package wordimg
 
 import (
 	"image/color"
@@ -36,12 +36,12 @@ func (c *colorGenerator) randColor() color.RGBA {
 	if base.G == 255 {
 		ran *= -1
 	}
-	base.G += uint8(randRange)
+	base.G += uint8(ran)
 
 	ran = c.randFunc(50)
 	if base.B == 255 {
 		ran *= -1
 	}
-	base.B += uint8(randRange)
+	base.B += uint8(ran)
 	return base
 }

@@ -1,4 +1,4 @@
-package wordrandimg
+package wordimg
 
 func (g *generator) SetRand(ivalue int, fvalue float64) {
 	g.randFunc = func() float64 {

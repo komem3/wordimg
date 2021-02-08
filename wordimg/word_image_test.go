@@ -1,4 +1,4 @@
-package wordrandimg_test
+package wordimg_test
 
 import (
 	"bytes"
@@ -9,18 +9,20 @@ import (
 	"reflect"
 	"testing"
 
-	wordrandimg "github.com/komom3/playtools/word_rand_img"
+	"github.com/komom3/word_rand_img/wordimg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/image/font/gofont/goregular"
 )
 
 func TestGenerator_GenrateImage(t *testing.T) {
 	type (
 		given struct {
-			randValue float64
-			message   string
-			width     int
-			height    int
+			message string
+			randI   int
+			randF   float64
+			width   int
+			height  int
 		}
 		want struct {
 			imagePath string
@@ -35,10 +37,11 @@ func TestGenerator_GenrateImage(t *testing.T) {
 		{
 			"512*512",
 			given{
-				randValue: 0,
-				message:   "Hello World",
-				width:     512,
-				height:    512,
+				message: "Hello World",
+				randI:   0,
+				randF:   0,
+				width:   512,
+				height:  512,
 			},
 			want{
 				imagePath: "helloworld.png",
@@ -48,10 +51,11 @@ func TestGenerator_GenrateImage(t *testing.T) {
 		{
 			"1024*1024",
 			given{
-				randValue: 0,
-				message:   "There is nothing either good or bad, but thinking makes it so.",
-				width:     1024,
-				height:    1024,
+				message: "There is nothing either good or bad, but thinking makes it so.",
+				randI:   2,
+				randF:   0.9,
+				width:   1024,
+				height:  1024,
 			},
 			want{
 				imagePath: "goodorbad.png",
@@ -64,11 +68,14 @@ func TestGenerator_GenrateImage(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			gen := wordrandimg.NewGenerator(rand)
-			gen.SetRand(int(tt.given.randValue), tt.given.randValue)
+			gen := wordimg.NewGenerator(rand, goregular.TTF)
+			gen.SetRand(tt.given.randI, tt.given.randF)
 
 			b := new(bytes.Buffer)
-			err := gen.GenerateImage(b, tt.given.width, tt.given.height, tt.given.message)
+			err := gen.GenerateImage(b, tt.given.message,
+				wordimg.WithWidth(tt.given.width),
+				wordimg.WithHeight(tt.given.height),
+			)
 			require.NoError(t, err)
 
 			wantFile, err := os.Open(filepath.Join("testdata", tt.want.imagePath))
