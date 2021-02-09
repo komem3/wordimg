@@ -2,6 +2,7 @@ package wordimg_test
 
 import (
 	"bytes"
+	"image/color"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -21,8 +22,7 @@ func TestGenerator_GenrateImage(t *testing.T) {
 			message string
 			randI   int
 			randF   float64
-			width   int
-			height  int
+			options []wordimg.Option
 		}
 		want struct {
 			imagePath string
@@ -40,8 +40,6 @@ func TestGenerator_GenrateImage(t *testing.T) {
 				message: "Hello World",
 				randI:   0,
 				randF:   0,
-				width:   512,
-				height:  512,
 			},
 			want{
 				imagePath: "helloworld.png",
@@ -54,11 +52,29 @@ func TestGenerator_GenrateImage(t *testing.T) {
 				message: "There is nothing either good or bad, but thinking makes it so.",
 				randI:   2,
 				randF:   0.9,
-				width:   1024,
-				height:  1024,
+				options: []wordimg.Option{
+					wordimg.WithWidth(1024),
+					wordimg.WithHeight(1024),
+				},
 			},
 			want{
 				imagePath: "goodorbad.png",
+				err:       nil,
+			},
+		},
+		{
+			"green and font 24px",
+			given{
+				message: "Hello World",
+				randI:   0,
+				randF:   0,
+				options: []wordimg.Option{
+					wordimg.WithColor(&color.RGBA{0, 255, 0, 255}),
+					wordimg.WithFontSize(24),
+				},
+			},
+			want{
+				imagePath: "green24.png",
 				err:       nil,
 			},
 		},
@@ -72,10 +88,7 @@ func TestGenerator_GenrateImage(t *testing.T) {
 			gen.SetRand(tt.given.randI, tt.given.randF)
 
 			b := new(bytes.Buffer)
-			err := gen.GenerateImage(b, tt.given.message,
-				wordimg.WithWidth(tt.given.width),
-				wordimg.WithHeight(tt.given.height),
-			)
+			err := gen.GenerateImage(b, tt.given.message, tt.given.options...)
 			require.NoError(t, err)
 
 			wantFile, err := os.Open(filepath.Join("testdata", tt.want.imagePath))

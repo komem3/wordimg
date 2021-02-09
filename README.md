@@ -26,7 +26,7 @@ Application Options:
       --size=      Font size.
   -w, --width=     Width of the generated image. (default: 512)
   -h, --height=    Height of the generated image. (default: 512)
-  -c, --color=     Text color.
+  -c, --color=     Text color. Format is 'R:G:B'. Example: 255:255:0(yellow)
 
 Help Options:
   -h, --help       Show this help message
