@@ -2,6 +2,22 @@
 
 This generate a random image from the entered words.
 
+## Http
+
+### Endpoint
+
+Endpoint to generate image.
+
+`https://wordimg-otho5yxlgq-an.a.run.app`
+
+### Query
+
+The size of the image is fixed at 512 * 512.
+
+- `text` text to write to image
+- `size` font size
+- `color` text color
+
 ## CLI
 
 ### Install

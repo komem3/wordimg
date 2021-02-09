@@ -1,0 +1,46 @@
+steps:
+  # Run unit test
+  - name: "golang:1.15"
+    entrypoint: go
+    args: ["test", "./..."]
+  # Copy font
+  - name: "gcr.io/cloud-builders/gsutil"
+    args: ["cp", "gs://$PROJECT_ID-font/*", "."]
+    waitFor: ["-"] # The '-' indicates that this step begins immediately.
+  # Build the container image
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "asia-northeast1-docker.pkg.dev/$PROJECT_ID/wordimg-docker-repo/wordimg:$TAG_NAME",
+        ".",
+      ]
+  # Push the container image to Container Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "push",
+        "asia-northeast1-docker.pkg.dev/$PROJECT_ID/wordimg-docker-repo/wordimg:$TAG_NAME",
+      ]
+  # Deploy container image to Cloud Run
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      [
+        "run",
+        "deploy",
+        "wordimg",
+        "--image",
+        "asia-northeast1-docker.pkg.dev/$PROJECT_ID/wordimg-docker-repo/wordimg:$TAG_NAME",
+        "--region",
+        "asia-northeast1",
+        "--platform",
+        "managed",
+        "--max-instances",
+        "50",
+        "--service-account",
+        "wordimg-runner@$PROJECT_ID.iam.gserviceaccount.com",
+      ]
+images:
+  - asia-northeast1-docker.pkg.dev/$PROJECT_ID/wordimg-docker-repo/wordimg:$TAG_NAME
