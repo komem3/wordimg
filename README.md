@@ -7,7 +7,7 @@ This generate a random image from the entered words.
 ### Install
 
 ```shell
-go get github.com/komom3/word_rand_img/wordimg
+go get github.com/komem3/word_rand_img/cmd/wordimg
 ```
 
 ### Usage

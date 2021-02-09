@@ -8,7 +8,7 @@ import (
 	"time"
 
 	flags "github.com/jessevdk/go-flags"
-	"github.com/komom3/word_rand_img/wordimg"
+	"github.com/komem3/word_rand_img/wordimg"
 	"golang.org/x/image/font/gofont/goregular"
 )
 
