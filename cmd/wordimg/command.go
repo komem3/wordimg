@@ -19,7 +19,7 @@ type options struct {
 	FontSize  int    `long:"size" description:"Font size."`
 	Width     int    `short:"w" long:"width" description:"Width of the generated image." default:"512"`
 	Height    int    `short:"h" long:"height" description:"Height of the generated image." default:"512"`
-	Color     string `short:"c" long:"color" description:"Text color."`
+	Color     string `short:"c" long:"color" description:"Text color. Format is 'R:G:B'. Example: 255:255:0(yellow)"`
 }
 
 type commandLine struct {
@@ -41,7 +41,7 @@ func (c *commandLine) parse(args []string) error {
 func (c *commandLine) exec() error {
 	f, err := os.Create(c.ImagePath)
 	if err != nil {
-		return err
+		return fmt.Errorf("create %s: %w", c.ImagePath, err)
 	}
 	defer f.Close()
 
@@ -49,15 +49,20 @@ func (c *commandLine) exec() error {
 	if c.FontPath == "" {
 		fontData = goregular.TTF
 	} else {
-		tfFile, err := os.Open(c.FontPath)
-		if err != nil {
-			return err
+		tfFile, e := os.Open(c.FontPath)
+		if e != nil {
+			return fmt.Errorf("open font file %s: %w", c.FontPath, e)
 		}
 		defer f.Close()
 		fontData, err = ioutil.ReadAll(tfFile)
 		if err != nil {
-			return err
+			return fmt.Errorf("read font data: %w", err)
 		}
+	}
+
+	color, err := wordimg.ConvertColor(c.Color)
+	if err != nil {
+		return fmt.Errorf("convert color.RGBA from %s: %w", c.Color, err)
 	}
 
 	rand := rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -67,5 +72,6 @@ func (c *commandLine) exec() error {
 		wordimg.WithWidth(c.Width),
 		wordimg.WithHeight(c.Height),
 		wordimg.WithFontSize(c.FontSize),
+		wordimg.WithColor(color),
 	)
 }

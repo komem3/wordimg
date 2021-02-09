@@ -3,7 +3,7 @@ package wordimg
 import "image/color"
 
 type (
-	option func(*config)
+	Option func(*config)
 
 	config struct {
 		width    int
@@ -13,7 +13,7 @@ type (
 	}
 )
 
-func newConfig(os ...option) config {
+func newConfig(os ...Option) config {
 	c := config{
 		width:  512,
 		height: 512,
@@ -25,28 +25,28 @@ func newConfig(os ...option) config {
 }
 
 // WithWidth set width.
-func WithWidth(w int) option {
+func WithWidth(w int) Option {
 	return func(c *config) {
 		c.width = w
 	}
 }
 
 // WithHeight set height.
-func WithHeight(w int) option {
+func WithHeight(w int) Option {
 	return func(c *config) {
 		c.height = w
 	}
 }
 
 // WithColor set color
-func WithColor(col color.RGBA) option {
+func WithColor(col *color.RGBA) Option {
 	return func(c *config) {
-		c.color = &col
+		c.color = col
 	}
 }
 
 // WithFontSize set font size.
-func WithFontSize(f int) option {
+func WithFontSize(f int) Option {
 	return func(c *config) {
 		c.fontSize = f
 	}

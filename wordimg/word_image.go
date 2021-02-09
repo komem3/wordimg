@@ -42,7 +42,7 @@ func NewGenerator(rand *rand.Rand, font []byte) *generator {
 }
 
 // GenerateImage generate image from given message.
-func (g *generator) GenerateImage(w io.Writer, message string, op ...option) error {
+func (g *generator) GenerateImage(w io.Writer, message string, op ...Option) error {
 	conf := newConfig(op...)
 	drawer, err := g.prepareDrawer(message, conf)
 	if err != nil {
