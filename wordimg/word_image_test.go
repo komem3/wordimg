@@ -78,6 +78,53 @@ func TestGenerator_GenrateImage(t *testing.T) {
 				err:       nil,
 			},
 		},
+		{
+			"just 1 line",
+			given{
+				message: "goodbye thank you",
+				randI:   0,
+				randF:   0,
+				options: []wordimg.Option{
+					wordimg.WithColor(&color.RGBA{255, 0, 255, 255}),
+					wordimg.WithJustLine(1),
+				},
+			},
+			want{
+				imagePath: "just1line.png",
+				err:       nil,
+			},
+		},
+		{
+			"just 2 line",
+			given{
+				message: "goodbye thank you",
+				randI:   0,
+				randF:   0,
+				options: []wordimg.Option{
+					wordimg.WithColor(&color.RGBA{255, 0, 255, 255}),
+					wordimg.WithJustLine(2),
+				},
+			},
+			want{
+				imagePath: "just2line.png",
+				err:       nil,
+			},
+		},
+		{
+			"text align center",
+			given{
+				message: "good!",
+				randI:   0,
+				randF:   0,
+				options: []wordimg.Option{
+					wordimg.WithAlignCenter(),
+				},
+			},
+			want{
+				imagePath: "align_center.png",
+				err:       nil,
+			},
+		},
 	}
 	rand := rand.New(rand.NewSource(0))
 	for _, tt := range tests {

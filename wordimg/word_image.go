@@ -17,6 +17,10 @@ import (
 	"golang.org/x/image/math/fixed"
 )
 
+type Generator interface {
+	GenerateImage(w io.Writer, message string, op ...Option) error
+}
+
 type generator struct {
 	randFunc func() float64
 	colorGen *colorGenerator
@@ -48,34 +52,51 @@ func (g *generator) GenerateImage(w io.Writer, message string, op ...Option) err
 	if err != nil {
 		return err
 	}
-	drawer.drawMessage(message)
+	drawer.drawMessage(message, conf)
 	if err := drawer.writeImage(w); err != nil {
 		return err
 	}
 	return nil
 }
 
-// rand retun 0.7 ~ 1.0.
+// rand retun 0.5 ~ 1.0.
 func (g *generator) rand() float64 {
-	return 0.7 + 0.3*g.randFunc()
+	return 0.5 + 0.5*g.randFunc()
 }
 
-func (g *generator) calcFontSize(message string, width, height int) float64 {
-	wordSize := math.Sqrt(float64(width * height / utf8.RuneCountInString(message)))
-	ww := width / int(wordSize) * int(wordSize)
-	if width == ww {
+func (g *generator) calcFontSize(message string, c config) float64 {
+	wordSize := math.Sqrt(float64(c.width * c.height / utf8.RuneCountInString(message)))
+	ww := c.width / int(wordSize) * int(wordSize)
+	if c.width == ww {
 		return wordSize * g.rand()
 	}
-	return math.Sqrt(float64(ww*height/utf8.RuneCountInString(message))) * g.rand()
+	return math.Sqrt(float64(ww*c.height/utf8.RuneCountInString(message))) * g.rand()
+}
+
+func (*generator) justFontSize(message string, fontSet *truetype.Font, c config) float64 {
+	wordSize := float64(c.width * c.justLine / utf8.RuneCountInString(message))
+	widthFix := fixed.Int26_6(int(float64(c.width*c.justLine)*0.9) << 6)
+
+	for face := truetype.NewFace(fontSet, &truetype.Options{Size: wordSize}); font.MeasureString(face, message) < widthFix; wordSize++ {
+		face = truetype.NewFace(fontSet, &truetype.Options{Size: wordSize})
+	}
+	return wordSize - 1
 }
 
 func (g *generator) prepareDrawer(message string, config config) (drawer *wordDrawer, err error) {
-	// wordSize := math.Sqrt(float64(config.width*config.height/utf8.RuneCountInString(message))) * g.rand()
+	fontSet, err := truetype.Parse(g.font)
+	if err != nil {
+		return nil, err
+	}
+
 	var fontSize float64
-	if config.fontSize > 0 {
+	switch {
+	case config.justLine > 0:
+		fontSize = g.justFontSize(message, fontSet, config)
+	case config.fontSize > 0:
 		fontSize = float64(config.fontSize)
-	} else {
-		fontSize = g.calcFontSize(message, config.width, config.height)
+	default:
+		fontSize = g.calcFontSize(message, config)
 	}
 
 	var col color.RGBA
@@ -85,10 +106,6 @@ func (g *generator) prepareDrawer(message string, config config) (drawer *wordDr
 		col = g.colorGen.randColor()
 	}
 
-	fontSet, err := truetype.Parse(g.font)
-	if err != nil {
-		return nil, err
-	}
 	drawer = &wordDrawer{
 		Drawer: &font.Drawer{
 			Dst: image.NewRGBA(image.Rect(0, 0, config.width, config.height)),
@@ -113,7 +130,7 @@ func (g *generator) prepareDrawer(message string, config config) (drawer *wordDr
 	return
 }
 
-func (d *wordDrawer) drawMessage(message string) {
+func (d *wordDrawer) drawMessage(message string, c config) {
 	var sb strings.Builder
 	for _, char := range message {
 		advance := d.MeasureString(sb.String() + string(char))
@@ -125,6 +142,14 @@ func (d *wordDrawer) drawMessage(message string) {
 		}
 		sb.WriteRune(char)
 	}
+	if c.align == alignLeft {
+		d.DrawString(sb.String())
+		return
+	}
+
+	advance := d.MeasureString(sb.String())
+	paddingLeft := (d.widthFix - advance) / 2
+	d.Dot = d.Dot.Add(freetype.Pt(paddingLeft.Ceil(), 0))
 	d.DrawString(sb.String())
 }
 

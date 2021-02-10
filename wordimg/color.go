@@ -41,7 +41,7 @@ func (c *colorGenerator) randColor() color.RGBA {
 	}
 	base.G += uint8(ran)
 
-	ran = c.randFunc(50)
+	ran = c.randFunc(randRange)
 	if base.B == 255 {
 		ran *= -1
 	}

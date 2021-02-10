@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io"
 	"log"
 	"math/rand"
 	"net/http"
@@ -12,18 +11,14 @@ import (
 	"github.com/komem3/word_rand_img/wordimg"
 )
 
-type generator interface {
-	GenerateImage(w io.Writer, message string, op ...wordimg.Option) error
-}
-
 type wordImgHandler struct {
-	generator
+	wordimg.Generator
 }
 
 func wordImgHandleGroup(r chi.Router, fontData []byte) {
 	rand := rand.New(rand.NewSource(time.Now().UnixNano()))
 	h := &wordImgHandler{
-		generator: wordimg.NewGenerator(rand, fontData),
+		Generator: wordimg.NewGenerator(rand, fontData),
 	}
 	r.Get("/", h.radnImage)
 }
@@ -69,7 +64,7 @@ func (h *wordImgHandler) radnImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	if err := h.generator.GenerateImage(w, message, options...); err != nil {
+	if err := h.GenerateImage(w, message, options...); err != nil {
 		log.Printf("[ERROR] generate: %+v\n", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		if _, err := w.Write([]byte("internal server error")); err != nil {
