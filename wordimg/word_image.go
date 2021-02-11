@@ -17,6 +17,12 @@ import (
 	"golang.org/x/image/math/fixed"
 )
 
+const (
+	paddingLeft  = 0.05
+	paddingRight = 0.9
+	padding      = paddingRight - paddingLeft
+)
+
 type Generator interface {
 	GenerateImage(w io.Writer, message string, op ...Option) error
 }
@@ -29,7 +35,7 @@ type generator struct {
 
 type wordDrawer struct {
 	*font.Drawer
-	widthFix fixed.Int26_6
+	widthMax int
 	startX   int
 	fontSize int
 }
@@ -75,7 +81,7 @@ func (g *generator) calcFontSize(message string, c config) float64 {
 
 func (*generator) justFontSize(message string, fontSet *truetype.Font, c config) float64 {
 	wordSize := float64(c.width * c.justLine / utf8.RuneCountInString(message))
-	widthFix := fixed.Int26_6(int(float64(c.width*c.justLine)*0.9) << 6)
+	widthFix := fixed.Int26_6(int(float64(c.width*c.justLine)*padding) << 6)
 
 	for face := truetype.NewFace(fontSet, &truetype.Options{Size: wordSize}); font.MeasureString(face, message) < widthFix; wordSize++ {
 		face = truetype.NewFace(fontSet, &truetype.Options{Size: wordSize})
@@ -118,15 +124,15 @@ func (g *generator) prepareDrawer(message string, config config) (drawer *wordDr
 	}
 
 	advance := drawer.MeasureString(message)
-	widthFix := fixed.Int26_6(int(float64(config.width)*0.95) << 6)
-	rowNum := int(advance/widthFix) + 1
+	widthMax := int(float64(config.width) * paddingRight)
+	rowNum := int(advance.Ceil()/widthMax) + 1
 
 	startY := (config.height-(rowNum*int(fontSize)))/2 + int(fontSize*0.75)
-	startX := int(0.05 * float64(config.width))
+	startX := int(paddingLeft * float64(config.width))
 
 	drawer.Dot = freetype.Pt(startX, startY)
 	drawer.startX = startX
-	drawer.widthFix = widthFix
+	drawer.widthMax = widthMax
 	return
 }
 
@@ -134,9 +140,8 @@ func (d *wordDrawer) drawMessage(message string, c config) {
 	var sb strings.Builder
 	for _, char := range message {
 		advance := d.MeasureString(sb.String() + string(char))
-		if advance > d.widthFix {
+		if advance.Ceil() > d.widthMax {
 			d.DrawString(sb.String())
-
 			sb.Reset()
 			d.Dot = d.Dot.Add(freetype.Pt(d.startX-d.Dot.X.Ceil(), int(d.fontSize)))
 		}
@@ -148,8 +153,8 @@ func (d *wordDrawer) drawMessage(message string, c config) {
 	}
 
 	advance := d.MeasureString(sb.String())
-	paddingLeft := (d.widthFix - advance) / 2
-	d.Dot = d.Dot.Add(freetype.Pt(paddingLeft.Ceil(), 0))
+	paddingLeft := (d.widthMax - advance.Ceil()) / 2
+	d.Dot = d.Dot.Add(freetype.Pt(paddingLeft, 0))
 	d.DrawString(sb.String())
 }
 

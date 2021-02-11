@@ -113,7 +113,7 @@ func TestGenerator_GenrateImage(t *testing.T) {
 		{
 			"text align center",
 			given{
-				message: "good!",
+				message: "goodbye thank you",
 				randI:   0,
 				randF:   0,
 				options: []wordimg.Option{

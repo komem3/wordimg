@@ -14,9 +14,10 @@ Endpoint to generate image.
 
 The size of the image is fixed at 512 * 512.
 
-- `text` text to write to image
-- `size` font size
-- `color` text color
+- `text` Text to write to image.
+- `size` Font size. Supports j${line} as a special format. If you specify 'j1', the font size will fit on one line.
+- `color` Text color.
+- `align` Word postion. Default is 'left'. 'left' or 'center'.
 
 ## CLI
 
@@ -39,7 +40,9 @@ Application Options:
   -m, --message=   Message to write to image. required.
   -i, --imagePath= Path of the image to write. Default is 'unix_time.png
   -f, --font=      Path to font file. Only support ttf.
-      --size=      Font size.
+      --size=      Font size. Supports j${line} as a special format. If you
+                   specify 'j1', the font size will fit on one line.
+  -a, --align=     Word postion. 'left' or 'center'
   -w, --width=     Width of the generated image. (default: 512)
   -h, --height=    Height of the generated image. (default: 512)
   -c, --color=     Text color. Format is 'R:G:B'. Example: 255:255:0(yellow)

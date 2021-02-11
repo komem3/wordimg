@@ -1,13 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
 	"github.com/go-chi/chi"
+	multierror "github.com/hashicorp/go-multierror"
 	"github.com/komem3/word_rand_img/wordimg"
 )
 
@@ -43,23 +46,13 @@ func (h *wordImgHandler) radnImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var options []wordimg.Option
-	fontSize := query.Get("size")
-	if fontSize != "" {
-		size, err := strconv.Atoi(fontSize)
-		if err != nil {
-			log.Printf("[WARN] font convert: %+v\n", err)
-		} else {
-			options = append(options, wordimg.WithFontSize(size))
-		}
-	}
-	rgb := query.Get("color")
-	if rgb != "" {
-		color, err := wordimg.ConvertColor(rgb)
-		if err != nil {
-			log.Printf("[WARN] color convert: %+v\n", err)
-		} else {
-			options = append(options, wordimg.WithColor(color))
+	options, err := h.optionParse(query)
+	if err != nil {
+		log.Printf("[WARN] query parse to option: %v\n", err)
+		if merr, ok := err.(*multierror.Error); ok {
+			for _, err := range merr.Errors {
+				log.Printf("[WARN] %v\n", err)
+			}
 		}
 	}
 
@@ -73,4 +66,46 @@ func (h *wordImgHandler) radnImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Add("Content-Type", "image/png")
+}
+
+func (*wordImgHandler) optionParse(query url.Values) (options []wordimg.Option, merr error) {
+	fontSize := query.Get("size")
+	if fontSize != "" {
+		if fontSize[0] == 'j' {
+			if len(fontSize) < 2 {
+				merr = multierror.Append(merr, fmt.Errorf("%s of the format is not 'j${line}'", fontSize))
+			}
+			justLine, e := strconv.Atoi(fontSize[1:])
+			if e != nil {
+				merr = multierror.Append(merr, fmt.Errorf("%s of the format is not 'j${line}': %w", fontSize, e))
+			}
+			options = append(options, wordimg.WithJustLine(justLine))
+		} else {
+			size, err := strconv.Atoi(fontSize)
+			if err != nil {
+				merr = multierror.Append(merr, fmt.Errorf("font convert: %w", err))
+			} else {
+				options = append(options, wordimg.WithFontSize(size))
+			}
+		}
+	}
+	rgb := query.Get("color")
+	if rgb != "" {
+		color, err := wordimg.ConvertColor(rgb)
+		if err != nil {
+			merr = multierror.Append(merr, fmt.Errorf("color convert: %w", err))
+		} else {
+			options = append(options, wordimg.WithColor(color))
+		}
+	}
+	align := query.Get("align")
+	if align != "" {
+		if align == "center" {
+			options = append(options, wordimg.WithAlignCenter())
+		} else {
+			merr = multierror.Append(merr, fmt.Errorf("align convert %s is not 'center'", align))
+		}
+	}
+
+	return options, merr
 }

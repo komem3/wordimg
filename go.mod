@@ -7,6 +7,7 @@ require (
 	github.com/go-chi/chi v1.5.1
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/google/go-cmp v0.5.4
+	github.com/hashicorp/go-multierror v1.1.0
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/stretchr/testify v1.4.0
