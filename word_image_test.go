@@ -10,7 +10,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/komem3/word_rand_img/wordimg"
+	"github.com/komem3/wordimg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/image/font/gofont/goregular"

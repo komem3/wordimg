@@ -1,4 +1,4 @@
-# Word Rand Img
+# Word Img
 
 This generate a random image from the entered words.
 
@@ -24,7 +24,7 @@ The size of the image is fixed at 512 * 512.
 ### Install
 
 ```shell
-go get github.com/komem3/word_rand_img/cmd/wordimg
+go get github.com/komem3/wordimg/cmd/wordimg
 ```
 
 ### Usage

@@ -1,4 +1,4 @@
-module github.com/komem3/word_rand_img
+module github.com/komem3/wordimg
 
 go 1.15
 

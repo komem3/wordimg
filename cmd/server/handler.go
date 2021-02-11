@@ -11,7 +11,7 @@ import (
 
 	"github.com/go-chi/chi"
 	multierror "github.com/hashicorp/go-multierror"
-	"github.com/komem3/word_rand_img/wordimg"
+	"github.com/komem3/wordimg"
 )
 
 type wordImgHandler struct {

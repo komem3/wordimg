@@ -9,7 +9,7 @@ import (
 	"time"
 
 	flags "github.com/jessevdk/go-flags"
-	"github.com/komem3/word_rand_img/wordimg"
+	"github.com/komem3/wordimg"
 	"golang.org/x/image/font/gofont/goregular"
 )
 
