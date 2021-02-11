@@ -1,4 +1,5 @@
 # Word Img
+[![Go Reference](https://pkg.go.dev/badge/github.com/komem3/wordimg.svg)](https://pkg.go.dev/github.com/komem3/wordimg)
 
 This generate a random image from the entered words.
 
