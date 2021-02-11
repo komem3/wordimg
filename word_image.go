@@ -1,4 +1,3 @@
-// Package wordimg implements generator to create an image from text.
 package wordimg
 
 import (
@@ -23,11 +22,8 @@ const (
 	padding      = paddingRight - paddingLeft
 )
 
-type Generator interface {
-	GenerateImage(w io.Writer, message string, op ...Option) error
-}
-
-type generator struct {
+// Generator contain font data.
+type Generator struct {
 	randFunc func() float64
 	colorGen *colorGenerator
 	font     []byte
@@ -41,8 +37,8 @@ type wordDrawer struct {
 }
 
 // NewGenerator create Generator.
-func NewGenerator(rand *rand.Rand, font []byte) *generator {
-	return &generator{
+func NewGenerator(rand *rand.Rand, font []byte) *Generator {
+	return &Generator{
 		randFunc: rand.Float64,
 		colorGen: &colorGenerator{
 			randFunc: rand.Intn,
@@ -51,8 +47,8 @@ func NewGenerator(rand *rand.Rand, font []byte) *generator {
 	}
 }
 
-// GenerateImage generate image from given message.
-func (g *generator) GenerateImage(w io.Writer, message string, op ...Option) error {
+// GenerateImage generate image from given message and write the image file to io.Writer.
+func (g *Generator) GenerateImage(w io.Writer, message string, op ...Option) error {
 	conf := newConfig(op...)
 	drawer, err := g.prepareDrawer(message, conf)
 	if err != nil {
@@ -66,11 +62,11 @@ func (g *generator) GenerateImage(w io.Writer, message string, op ...Option) err
 }
 
 // rand retun 0.5 ~ 1.0.
-func (g *generator) rand() float64 {
+func (g *Generator) rand() float64 {
 	return 0.5 + 0.5*g.randFunc()
 }
 
-func (g *generator) calcFontSize(message string, c config) float64 {
+func (g *Generator) calcFontSize(message string, c config) float64 {
 	wordSize := math.Sqrt(float64(c.width * c.height / utf8.RuneCountInString(message)))
 	ww := c.width / int(wordSize) * int(wordSize)
 	if c.width == ww {
@@ -79,7 +75,7 @@ func (g *generator) calcFontSize(message string, c config) float64 {
 	return math.Sqrt(float64(ww*c.height/utf8.RuneCountInString(message))) * g.rand()
 }
 
-func (*generator) justFontSize(message string, fontSet *truetype.Font, c config) float64 {
+func (*Generator) justFontSize(message string, fontSet *truetype.Font, c config) float64 {
 	wordSize := float64(c.width * c.justLine / utf8.RuneCountInString(message))
 	widthFix := fixed.Int26_6(int(float64(c.width*c.justLine)*padding) << 6)
 
@@ -89,7 +85,7 @@ func (*generator) justFontSize(message string, fontSet *truetype.Font, c config)
 	return wordSize - 1
 }
 
-func (g *generator) prepareDrawer(message string, config config) (drawer *wordDrawer, err error) {
+func (g *Generator) prepareDrawer(message string, config config) (drawer *wordDrawer, err error) {
 	fontSet, err := truetype.Parse(g.font)
 	if err != nil {
 		return nil, err

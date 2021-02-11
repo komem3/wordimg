@@ -15,7 +15,7 @@ import (
 )
 
 type wordImgHandler struct {
-	wordimg.Generator
+	*wordimg.Generator
 }
 
 func wordImgHandleGroup(r chi.Router, fontData []byte) {

@@ -10,7 +10,9 @@ const (
 )
 
 type (
+	// Option is a setting value to image generation.
 	Option func(*config)
+
 	config struct {
 		width    int
 		height   int
