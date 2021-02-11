@@ -19,7 +19,6 @@ import (
 const (
 	paddingLeft  = 0.05
 	paddingRight = 0.9
-	padding      = paddingRight - paddingLeft
 )
 
 // Generator contain font data.
@@ -76,8 +75,10 @@ func (g *Generator) calcFontSize(message string, c config) float64 {
 }
 
 func (*Generator) justFontSize(message string, fontSet *truetype.Font, c config) float64 {
-	wordSize := float64(c.width * c.justLine / utf8.RuneCountInString(message))
-	widthFix := fixed.Int26_6(int(float64(c.width*c.justLine)*padding) << 6)
+	wordSize := float64(c.width * c.justLine / len(message))
+	startX := paddingLeft * float64(c.width)
+	endX := paddingRight * float64(c.width)
+	widthFix := fixed.Int26_6((int(endX-startX) * c.justLine) << 6)
 
 	for face := truetype.NewFace(fontSet, &truetype.Options{Size: wordSize}); font.MeasureString(face, message) < widthFix; wordSize++ {
 		face = truetype.NewFace(fontSet, &truetype.Options{Size: wordSize})

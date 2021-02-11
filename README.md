@@ -9,7 +9,7 @@ This generate a random image from the entered words.
 
 Endpoint to generate image.
 
-`https://wordimg-otho5yxlgq-an.a.run.app`
+`https://wordimg-otho5yxlgq-an.a.run.app/wordimg`
 
 ### Query
 
