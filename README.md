@@ -1,4 +1,5 @@
 # Word Img
+
 [![Go Reference](https://pkg.go.dev/badge/github.com/komem3/wordimg.svg)](https://pkg.go.dev/github.com/komem3/wordimg)
 
 This generate a random image from the entered words.
@@ -13,10 +14,10 @@ Endpoint to generate image.
 
 ### Query
 
-The size of the image is fixed at 512 * 512.
+The size of the image is fixed at 512 \* 512.
 
 - `text` Text to write to image.
-- `size` Font size. Supports j${line} as a special format. If you specify 'j1', the font size will fit on one line.
+- `size` Font size. Supports j\${line} as a special format. If you specify 'j1', the font size will fit on one line.
 - `color` Text color.
 - `align` Word postion. Default is 'left'. 'left' or 'center'.
 
@@ -60,14 +61,18 @@ wrote: 1612796180.png
 ```
 
 #### Specify font
+
 ```shell
 $ wordimg -m "こんにちは世界" -f ./SawarabiGothic-Regular.ttf
 wrote: 1612796255.png
 ```
+
+## [Slack Bot](./slackbot)
 
 ## License
 
 MIT
 
 ## Author
+
 komem3
